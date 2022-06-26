@@ -5,11 +5,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Error from '../Error';
 import Loader from '../Loader';
-import { AvatarContext } from '../Context';
+import { AvatarContext } from '../../store/Context';
 
-export default function CameraModal({ cameraOpen, setCameraOpen }) {
+export default function CameraModal({ isCameraOpened, setIsCameraOpened }) {
   const [hasPermission, setHasPermission] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [error, setError] = useState('');
   const [type, setType] = useState(CameraType.front);
 
   const cameraRef = useRef();
@@ -19,32 +19,32 @@ export default function CameraModal({ cameraOpen, setCameraOpen }) {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('No access to camera');
+        setError('No access to camera');
         return;
       }
       setHasPermission(true);
     })();
   }, []);
 
-  const switchCamera = () => {
+  const onSwitchCamera = () => {
     setType(type === CameraType.front ? CameraType.back : CameraType.front);
   };
 
-  const takePhotoHandler = async () => {
+  const onTakePhoto = async () => {
     if (!cameraRef) return;
 
     try {
       const photo = await cameraRef.current.takePictureAsync();
       setProfileAvatar({ uri: photo.uri });
-      setCameraOpen(false);
+      setIsCameraOpened(false);
     } catch (error) {
-      setErrorMsg(error.message);
+      setError(error.message);
     }
   };
 
-  const closeCameraHandler = () => {
-    setCameraOpen(false);
-    setErrorMsg('');
+  const onCloseCamera = () => {
+    setIsCameraOpened(false);
+    setError('');
   };
 
   const content = () => {
@@ -52,10 +52,10 @@ export default function CameraModal({ cameraOpen, setCameraOpen }) {
       return <Loader loading={true} />;
     }
 
-    if (errorMsg) {
+    if (error) {
       return (
         <View style={styles.container}>
-          <Error error={errorMsg} />
+          <Error error={error} />
         </View>
       );
     }
@@ -63,8 +63,8 @@ export default function CameraModal({ cameraOpen, setCameraOpen }) {
     return (
       <Camera ref={cameraRef} style={styles.camera} type={type}>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.takePhotoButton} onPress={takePhotoHandler} />
-          <TouchableOpacity style={styles.switchButton} onPress={switchCamera}>
+          <TouchableOpacity style={styles.takePhotoButton} onPress={onTakePhoto} />
+          <TouchableOpacity style={styles.switchButton} onPress={onSwitchCamera}>
             <MaterialCommunityIcons name="camera-flip" size={48} color="white" />
           </TouchableOpacity>
         </View>
@@ -75,9 +75,9 @@ export default function CameraModal({ cameraOpen, setCameraOpen }) {
   return (
     <Modal
       animationType="slide"
-      transparent={true}
-      visible={cameraOpen}
-      onRequestClose={closeCameraHandler}>
+      transparent
+      visible={isCameraOpened}
+      onRequestClose={onCloseCamera}>
       {content()}
     </Modal>
   );

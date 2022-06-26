@@ -2,22 +2,22 @@ import React, { useState, useContext } from 'react';
 import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 
 import Camera from '../../components/Camera';
-import { AvatarContext } from '../../components/Context';
+import { AvatarContext } from '../../store/Context';
 
 export default function ProfileScreen() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const { profileAvatar } = useContext(AvatarContext);
 
-  const foo = () => {
+  const onCameraOpen = () => {
     setCameraOpen(!cameraOpen);
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.avatarWrapper} onPress={foo}>
+      <TouchableOpacity style={styles.avatarWrapper} onPress={onCameraOpen}>
         <Image style={styles.avatar} source={profileAvatar} />
       </TouchableOpacity>
-      <Camera cameraOpen={cameraOpen} setCameraOpen={setCameraOpen} />
+      <Camera isCameraOpened={cameraOpen} setIsCameraOpened={setCameraOpen} />
     </View>
   );
 }

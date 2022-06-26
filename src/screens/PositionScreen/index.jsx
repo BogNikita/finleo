@@ -6,7 +6,7 @@ import MapView, { PROVIDER_GOOGLE, Circle } from 'react-native-maps';
 import Loader from '../../components/Loader';
 import Button from '../../components/Button';
 import Error from '../../components/Error';
-import { PROFILE_ROUTE } from '../../components/constants/routes';
+import { PROFILE_ROUTE } from '../../navigation/routes';
 
 export default function PositionScreen({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -25,7 +25,7 @@ export default function PositionScreen({ navigation }) {
     })();
   }, []);
 
-  const handleClick = () => {
+  const onNavigate = () => {
     navigation.navigate(PROFILE_ROUTE);
   };
 
@@ -59,7 +59,7 @@ export default function PositionScreen({ navigation }) {
           />
         </MapView>
         <View style={styles.btnWrapper}>
-          <Button title="Перейти к профилю" onPress={handleClick} />
+          <Button title="Перейти к профилю" onPress={onNavigate} />
         </View>
       </>
     );

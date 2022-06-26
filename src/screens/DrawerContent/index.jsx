@@ -3,28 +3,28 @@ import { View, StyleSheet, Image } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 
-import { AuthContext, AvatarContext } from '../../components/Context';
-import { LOCATION_ROUTE, LOGIN_ROUTE, PROFILE_ROUTE } from '../../components/constants/routes';
+import { AuthContext, AvatarContext } from '../../store/Context';
+import { LOCATION_ROUTE, LOGIN_ROUTE, PROFILE_ROUTE } from '../../navigation/routes';
 
 import defaultAvatar from '../../../assets/avatar.png';
 
 export default function DrawerContent(props) {
-  const { profileAvatar } = useContext(AvatarContext);
+  const { profileAvatar, setProfileAvatar } = useContext(AvatarContext);
   const { setAuth } = useContext(AuthContext);
 
-  const logoutHandler = () => {
+  const onLogout = () => {
     setProfileAvatar(defaultAvatar);
     setAuth(null);
     props.navigation.navigate(LOGIN_ROUTE);
   };
 
-  const activeRoute = (routeName) => {
+  const isActiveRoute = (routeName) => {
     const { index, routes } = props.navigation.getState();
 
     return routes[index].name === routeName;
   };
 
-  const navigateHandler = (routeName) => () => props.navigation.navigate(routeName);
+  const onNavigate = (routeName) => () => props.navigation.navigate(routeName);
 
   return (
     <View style={styles.drawerContent}>
@@ -36,21 +36,21 @@ export default function DrawerContent(props) {
         <DrawerItem
           icon={({ color, size }) => <Entypo name="map" size={size} color={color} />}
           label="Местоположение"
-          onPress={navigateHandler(LOCATION_ROUTE)}
-          focused={activeRoute(LOCATION_ROUTE)}
+          onPress={onNavigate(LOCATION_ROUTE)}
+          focused={isActiveRoute(LOCATION_ROUTE)}
         />
         <DrawerItem
           icon={({ color, size }) => (
             <MaterialCommunityIcons name="face-man-profile" size={size} color={color} />
           )}
           label="Профиль"
-          onPress={navigateHandler(PROFILE_ROUTE)}
-          focused={activeRoute(PROFILE_ROUTE)}
+          onPress={onNavigate(PROFILE_ROUTE)}
+          focused={isActiveRoute(PROFILE_ROUTE)}
         />
         <DrawerItem
           icon={({ color, size }) => <Entypo name="login" size={size} color={color} />}
           label="Выйти"
-          onPress={logoutHandler}
+          onPress={onLogout}
         />
       </DrawerContentScrollView>
     </View>

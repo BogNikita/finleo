@@ -4,8 +4,8 @@ import { StyleSheet, View, Image, TextInput } from 'react-native';
 import Button from '../../components/Button';
 import Error from '../../components/Error';
 import Loader from '../../components/Loader';
-import { AuthContext } from '../../components/Context';
-import { LOCATION_ROUTE } from '../../components/constants/routes';
+import { AuthContext } from '../../store/Context';
+import { LOCATION_ROUTE } from '../../navigation/routes';
 
 import logo from '../../../assets/logo.png';
 
@@ -19,13 +19,14 @@ export default function LoginScreen({ navigation }) {
 
   const { setAuth } = useContext(AuthContext);
 
-  const handleChange = (key) => (text) => {
+  const onChange = (key) => (text) => {
     if (error) {
       setError('');
     }
     setUserData((prev) => ({ ...prev, [key]: text }));
   };
-  const submitHandler = () => {
+
+  const onSubmit = () => {
     if (error) return;
 
     const { name, password } = userData;
@@ -55,19 +56,19 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
         value={userData.name}
         placeholder="Логин"
-        onChangeText={handleChange('name')}
+        onChangeText={onChange('name')}
         editable={!isLoading}
       />
       <TextInput
         style={styles.input}
         value={userData.password}
-        onChangeText={handleChange('password')}
+        onChangeText={onChange('password')}
         placeholder="Пароль"
         secureTextEntry={true}
         editable={!isLoading}
       />
       <Error error={error} />
-      <Button title="Войти" onPress={submitHandler} />
+      <Button title="Войти" onPress={onSubmit} />
     </View>
   );
 }
