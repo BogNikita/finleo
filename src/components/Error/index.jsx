@@ -9,5 +9,7 @@ const styles = StyleSheet.create({
   error: {
     color: '#c90c27',
     padding: 10,
+    width: '80%',
+    textAlign: 'center',
   },
 });

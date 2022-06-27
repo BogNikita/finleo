@@ -1,16 +1,17 @@
 import { useContext, useState } from 'react';
 import { StyleSheet, View, Image, TextInput } from 'react-native';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 import Button from '../../components/Button';
 import Error from '../../components/Error';
 import Loader from '../../components/Loader';
 import { AuthContext } from '../../store/Context';
+import { auth } from '../../../firebase';
 import { LOCATION_ROUTE } from '../../navigation/routes';
 
 import logo from '../../../assets/logo.png';
 
-const mockUserData = { name: 'admin', password: 'admin' };
-const initialState = { name: '', password: '' };
+const initialState = { email: '', password: '' };
 
 export default function LoginScreen({ navigation }) {
   const [userData, setUserData] = useState(initialState);
@@ -26,24 +27,29 @@ export default function LoginScreen({ navigation }) {
     setUserData((prev) => ({ ...prev, [key]: text }));
   };
 
-  const onSubmit = () => {
-    if (error) return;
+  const onSubmit = (type) => async () => {
+    setError('');
 
-    const { name, password } = userData;
-    if (!name || !password) {
+    const { email, password } = userData;
+    if (!email || !password) {
       setError('Заполните все поля');
     } else {
       setIsLoading(true);
-      setTimeout(() => {
+
+      const actionType =
+        type === 'signUp' ? createUserWithEmailAndPassword : signInWithEmailAndPassword;
+
+      try {
+        const { user } = await actionType(auth, email.trim(), password);
+
+        setAuth(user);
+        setUserData(initialState);
+        navigation.navigate(LOCATION_ROUTE);
+      } catch (error) {
+        setError(error.message);
+      } finally {
         setIsLoading(false);
-        if (userData.name === mockUserData.name && userData.password === mockUserData.password) {
-          setAuth(true);
-          setUserData(initialState);
-          navigation.navigate(LOCATION_ROUTE);
-        } else {
-          setError('Неверный логин или пароль');
-        }
-      }, 3000);
+      }
     }
   };
 
@@ -54,10 +60,11 @@ export default function LoginScreen({ navigation }) {
       <Image style={styles.logo} source={logo} />
       <TextInput
         style={styles.input}
-        value={userData.name}
-        placeholder="Логин"
-        onChangeText={onChange('name')}
+        value={userData.email}
+        placeholder="Email"
+        onChangeText={onChange('email')}
         editable={!isLoading}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -68,7 +75,8 @@ export default function LoginScreen({ navigation }) {
         editable={!isLoading}
       />
       <Error error={error} />
-      <Button title="Войти" onPress={onSubmit} />
+      <Button title="Войти" onPress={onSubmit('signIn')} disabled={isLoading} />
+      <Button title="Зарегистрироваться" onPress={onSubmit('signUp')} disabled={isLoading} />
     </View>
   );
 }

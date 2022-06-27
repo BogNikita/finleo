@@ -2,18 +2,20 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Modal, StyleSheet, TouchableOpacity, Text, View } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { updateProfile } from 'firebase/auth';
 
 import Error from '../Error';
 import Loader from '../Loader';
-import { AvatarContext } from '../../store/Context';
+import { auth } from '../../../firebase';
+import { uploadImageAsync } from '../../helpers/uploadFile';
 
 export default function CameraModal({ isCameraOpened, setIsCameraOpened }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [hasPermission, setHasPermission] = useState(null);
   const [error, setError] = useState('');
   const [type, setType] = useState(CameraType.front);
 
   const cameraRef = useRef();
-  const { setProfileAvatar } = useContext(AvatarContext);
 
   useEffect(() => {
     (async () => {
@@ -35,10 +37,14 @@ export default function CameraModal({ isCameraOpened, setIsCameraOpened }) {
 
     try {
       const photo = await cameraRef.current.takePictureAsync();
-      setProfileAvatar({ uri: photo.uri });
+      setIsLoading(true);
+      const storageRef = await uploadImageAsync(photo.uri);
+      await updateProfile(auth.currentUser, { photoURL: storageRef });
       setIsCameraOpened(false);
     } catch (error) {
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,7 +54,7 @@ export default function CameraModal({ isCameraOpened, setIsCameraOpened }) {
   };
 
   const content = () => {
-    if (hasPermission === null) {
+    if (hasPermission === null || isLoading) {
       return <Loader loading={true} />;
     }
 

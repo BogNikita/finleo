@@ -3,17 +3,15 @@ import { View, StyleSheet, Image } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 
-import { AuthContext, AvatarContext } from '../../store/Context';
+import { AuthContext } from '../../store/Context';
 import { LOCATION_ROUTE, LOGIN_ROUTE, PROFILE_ROUTE } from '../../navigation/routes';
 
 import defaultAvatar from '../../../assets/avatar.png';
 
 export default function DrawerContent(props) {
-  const { profileAvatar, setProfileAvatar } = useContext(AvatarContext);
-  const { setAuth } = useContext(AuthContext);
+  const { auth, setAuth } = useContext(AuthContext);
 
   const onLogout = () => {
-    setProfileAvatar(defaultAvatar);
     setAuth(null);
     props.navigation.navigate(LOGIN_ROUTE);
   };
@@ -30,7 +28,10 @@ export default function DrawerContent(props) {
     <View style={styles.drawerContent}>
       <DrawerContentScrollView {...props}>
         <View style={styles.userAvatarSection}>
-          <Image source={profileAvatar} style={styles.userAvatar} />
+          <Image
+            source={auth?.photoURL ? { uri: auth?.photoURL } : defaultAvatar}
+            style={styles.userAvatar}
+          />
         </View>
 
         <DrawerItem
